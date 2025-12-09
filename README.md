@@ -201,6 +201,24 @@ claude-profiles --store work --log
 claude-profiles --store work --log=claude-backup.log
 ```
 
+#### Skip Projects Folder
+Exclude the projects folder from backups to reduce profile size:
+```bash
+# Store profile without projects folder
+claude-profiles --store work --skip-projects
+
+# Restore and watch without projects
+claude-profiles --restore work --watch work --skip-projects
+
+# Useful when projects folder is large
+claude-profiles --watch work --skip-projects
+```
+
+**Use Cases:**
+- Reduce backup size when projects folder contains large conversation histories
+- Avoid hitting GitHub's 10MB gist size limit
+- Focus on configuration and settings without project data
+
 ## Profile Names
 
 Profile names must follow these rules:
