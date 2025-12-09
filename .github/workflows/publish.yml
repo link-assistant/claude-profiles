@@ -46,7 +46,7 @@ jobs:
       - name: Check if version exists on npm
         id: check_version
         run: |
-          if npm view @deep-assistant/claude-profiles@${{ steps.version.outputs.version }} version 2>/dev/null; then
+          if npm view @link-assistant/claude-profiles@${{ steps.version.outputs.version }} version 2>/dev/null; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "Version ${{ steps.version.outputs.version }} already exists on npm"
           else
@@ -84,14 +84,14 @@ jobs:
           release_name: Release v${{ steps.version.outputs.version }}
           body: |
             ## 📦 npm Package
-            
+
             Install via npm:
             ```bash
-            npm install -g @deep-assistant/claude-profiles@${{ steps.version.outputs.version }}
+            npm install -g @link-assistant/claude-profiles@${{ steps.version.outputs.version }}
             ```
-            
-            View on npm: https://www.npmjs.com/package/@deep-assistant/claude-profiles/v/${{ steps.version.outputs.version }}
-            
+
+            View on npm: https://www.npmjs.com/package/@link-assistant/claude-profiles/v/${{ steps.version.outputs.version }}
+
             ## 🚀 What's Changed
             
             See [commit history](https://github.com/${{ github.repository }}/commits/v${{ steps.version.outputs.version }}) for details.
@@ -119,10 +119,10 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Install" >> $GITHUB_STEP_SUMMARY
             echo '```bash' >> $GITHUB_STEP_SUMMARY
-            echo "npm install -g @deep-assistant/claude-profiles@${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "npm install -g @link-assistant/claude-profiles@${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Links" >> $GITHUB_STEP_SUMMARY
-            echo "- [npm Package](https://www.npmjs.com/package/@deep-assistant/claude-profiles/v/${{ steps.version.outputs.version }})" >> $GITHUB_STEP_SUMMARY
+            echo "- [npm Package](https://www.npmjs.com/package/@link-assistant/claude-profiles/v/${{ steps.version.outputs.version }})" >> $GITHUB_STEP_SUMMARY
             echo "- [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }})" >> $GITHUB_STEP_SUMMARY
           fi
