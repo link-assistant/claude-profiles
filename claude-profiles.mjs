@@ -1006,6 +1006,136 @@ async function calculateFilesHash(options = {}) {
 }
 
 /**
+ * Set up selective watchers for .claude directory to avoid watching excluded folders
+ */
+async function setupSelectiveWatchers(claudeDir, options, watchers, handleFileChange, sourcePath) {
+  try {
+    const entries = await fsPromises.readdir(claudeDir, { withFileTypes: true });
+    
+    // Watch individual files in the root of .claude directory
+    for (const entry of entries) {
+      const fullPath = path.join(claudeDir, entry.name);
+      
+      // Skip projects folder if --skip-projects is enabled
+      if (options.skipProjects && entry.name === 'projects') {
+        log('DEBUG', `Skipping watch on projects folder: ${sourcePath}/${entry.name}`);
+        continue;
+      }
+      
+      // Skip nested .claude directories to avoid recursive issues
+      if (entry.name === '.claude') {
+        log('DEBUG', `Skipping watch on nested .claude directory: ${sourcePath}/${entry.name}`);
+        continue;
+      }
+      
+      try {
+        if (entry.isDirectory()) {
+          // Check if directory contains nested .claude directories that should be excluded
+          const shouldWatchRecursively = await shouldWatchDirectoryRecursively(fullPath);
+          
+          const watcher = fs.watch(fullPath, { 
+            recursive: shouldWatchRecursively,
+            persistent: true
+          }, (eventType, filename) => {
+            // Filter out changes to nested .claude directories at runtime
+            const fullFilename = filename ? `${sourcePath}/${entry.name}/${filename}` : `${sourcePath}/${entry.name}`;
+            if (!shouldIgnoreFileChange(fullFilename, options)) {
+              handleFileChange(eventType, fullFilename);
+            }
+          });
+          
+          watcher.on('error', (error) => {
+            log('ERROR', `Watcher error for ${sourcePath}/${entry.name}: ${error.message}`);
+          });
+          
+          watchers.push(watcher);
+          log('DEBUG', `Watching directory: ${sourcePath}/${entry.name} (recursive: ${shouldWatchRecursively})`);
+        } else if (entry.isFile()) {
+          // For individual files, create a non-recursive watcher
+          const watcher = fs.watch(fullPath, { 
+            recursive: false,
+            persistent: true
+          }, (eventType, filename) => {
+            handleFileChange(eventType, `${sourcePath}/${entry.name}`);
+          });
+          
+          watcher.on('error', (error) => {
+            log('ERROR', `Watcher error for ${sourcePath}/${entry.name}: ${error.message}`);
+          });
+          
+          watchers.push(watcher);
+          log('DEBUG', `Watching file: ${sourcePath}/${entry.name}`);
+        }
+      } catch (watchError) {
+        if (watchError.code !== 'ENOENT') {
+          log('WARN', `Could not watch ${sourcePath}/${entry.name}: ${watchError.message}`);
+        }
+      }
+    }
+  } catch (error) {
+    log('ERROR', `Failed to set up selective watchers for ${sourcePath}: ${error.message}`);
+    // Fallback to watching the entire directory
+    const watcher = fs.watch(claudeDir, { 
+      recursive: true,
+      persistent: true
+    }, (eventType, filename) => {
+      const fullFilename = filename ? `${sourcePath}/${filename}` : sourcePath;
+      if (!shouldIgnoreFileChange(fullFilename, options)) {
+        handleFileChange(eventType, fullFilename);
+      }
+    });
+    
+    watcher.on('error', (error) => {
+      log('ERROR', `Fallback watcher error for ${sourcePath}: ${error.message}`);
+    });
+    
+    watchers.push(watcher);
+    log('DEBUG', `Fallback: Watching ${sourcePath} with runtime filtering`);
+  }
+}
+
+/**
+ * Check if a directory should be watched recursively or if it contains .claude subdirs to avoid
+ */
+async function shouldWatchDirectoryRecursively(dirPath) {
+  try {
+    // For now, always use recursive watching but filter at runtime
+    // This is simpler and more reliable than trying to detect all nested .claude dirs
+    return true;
+  } catch (error) {
+    return true;
+  }
+}
+
+/**
+ * Check if a file change should be ignored based on filtering options
+ */
+function shouldIgnoreFileChange(filename, options) {
+  // Skip projects folder if --skip-projects is enabled
+  if (options.skipProjects && (filename.includes('/projects/') || filename.includes('\\projects\\') || 
+                               filename.endsWith('/projects') || filename.endsWith('\\projects'))) {
+    return true;
+  }
+  
+  // Skip nested .claude directories (any .claude that's not at the immediate root level)
+  // This matches the same logic used in the archiving process
+  const pathParts = filename.split(/[/\\]/);
+  for (let i = 0; i < pathParts.length; i++) {
+    if (pathParts[i] === '.claude' && i > 0) {
+      // Found .claude directory nested inside another directory
+      // Only allow if it's the direct child of home (~) or at the immediate root
+      if (i === 1 && (pathParts[0] === '~' || pathParts[0] === '.claude')) {
+        // This is ~/.claude/... or .claude/... which is allowed
+        continue;
+      }
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+/**
  * Watch for changes and auto-save profile
  */
 async function watchProfile(profileName, options = {}) {
@@ -1191,21 +1321,26 @@ async function watchProfile(profileName, options = {}) {
       try {
         const stats = await fsPromises.stat(watchPath);
         
-        // Create watcher with options
-        const watcher = fs.watch(watchPath, { 
-          recursive: stats.isDirectory(),
-          persistent: true
-        }, (eventType, filename) => {
-          handleFileChange(eventType, `${item.source}/${filename || ''}`);
-        });
-        
-        // Add error handler for watcher
-        watcher.on('error', (error) => {
-          log('ERROR', `Watcher error for ${item.source}: ${error.message}`);
-        });
-        
-        watchers.push(watcher);
-        log('DEBUG', `Watching: ${item.source} (${stats.isDirectory() ? 'directory' : 'file'})`);
+        if (stats.isDirectory() && item.source === '~/.claude' && (options.skipProjects || item.skipProjects)) {
+          // For .claude directory with filtering, create selective watchers
+          await setupSelectiveWatchers(watchPath, options, watchers, handleFileChange, item.source);
+        } else {
+          // Create standard watcher
+          const watcher = fs.watch(watchPath, { 
+            recursive: stats.isDirectory(),
+            persistent: true
+          }, (eventType, filename) => {
+            handleFileChange(eventType, `${item.source}/${filename || ''}`);
+          });
+          
+          // Add error handler for watcher
+          watcher.on('error', (error) => {
+            log('ERROR', `Watcher error for ${item.source}: ${error.message}`);
+          });
+          
+          watchers.push(watcher);
+          log('DEBUG', `Watching: ${item.source} (${stats.isDirectory() ? 'directory' : 'file'})`);
+        }
       } catch (error) {
         if (error.code !== 'ENOENT') {
           log('WARN', `Could not watch ${item.source}: ${error.message}`);
