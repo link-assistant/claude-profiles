@@ -1,6 +1,6 @@
 {
-  "name": "@deep-assistant/claude-profiles",
-  "version": "1.2.2",
+  "name": "@link-assistant/claude-profiles",
+  "version": "1.2.3",
   "description": "Manage multiple Claude configuration profiles using GitHub Gists as secure cloud storage",
   "main": "claude-profiles.mjs",
   "bin": {
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deep-assistant/claude-profiles.git"
+    "url": "git+https://github.com/link-assistant/claude-profiles.git"
   },
   "keywords": [
     "claude",
@@ -33,9 +33,9 @@
   "author": "Deep Assistant",
   "license": "Unlicense",
   "bugs": {
-    "url": "https://github.com/deep-assistant/claude-profiles/issues"
+    "url": "https://github.com/link-assistant/claude-profiles/issues"
   },
-  "homepage": "https://github.com/deep-assistant/claude-profiles#readme",
+  "homepage": "https://github.com/link-assistant/claude-profiles#readme",
   "files": [
     "claude-profiles.mjs",
     "README.md",

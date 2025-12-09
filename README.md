@@ -1,9 +1,9 @@
-[![npm](https://img.shields.io/npm/v/@deep-assistant/claude-profiles.svg)](https://npmjs.com/@deep-assistant/claude-profiles)
-[![License](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://github.com/deep-assistant/claude-profiles/blob/main/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/deep-assistant/claude-profiles?style=social)](https://github.com/deep-assistant/claude-profiles/stargazers)
+[![npm](https://img.shields.io/npm/v/@link-assistant/claude-profiles.svg)](https://npmjs.com/@link-assistant/claude-profiles)
+[![License](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://github.com/link-assistant/claude-profiles/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/link-assistant/claude-profiles?style=social)](https://github.com/link-assistant/claude-profiles/stargazers)
 
-[![Open in Gitpod](https://img.shields.io/badge/Gitpod-ready--to--code-f29718?logo=gitpod)](https://gitpod.io/#https://github.com/deep-assistant/claude-profiles)
-[![Open in GitHub Codespaces](https://img.shields.io/badge/GitHub%20Codespaces-Open-181717?logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=deep-assistant/claude-profiles)
+[![Open in Gitpod](https://img.shields.io/badge/Gitpod-ready--to--code-f29718?logo=gitpod)](https://gitpod.io/#https://github.com/link-assistant/claude-profiles)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/GitHub%20Codespaces-Open-181717?logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=link-assistant/claude-profiles)
 
 # Claude Profiles
 
@@ -63,12 +63,12 @@ Perfect for developers working with:
 
 #### Using Bun (Fastest)
 ```bash
-bun install -g @deep-assistant/claude-profiles
+bun install -g @link-assistant/claude-profiles
 ```
 
 #### Using npm
 ```bash
-npm install -g @deep-assistant/claude-profiles
+npm install -g @link-assistant/claude-profiles
 ```
 
 After installation, the tool will be available globally as `claude-profiles`:
@@ -100,12 +100,12 @@ claude-profiles --help
 3. **Clone or download the tool**:
    ```bash
    # Option A: Clone the repository
-   git clone https://github.com/deep-assistant/claude-profiles.git
+   git clone https://github.com/link-assistant/claude-profiles.git
    cd claude-profiles
    chmod +x claude-profiles.mjs
-   
+
    # Option B: Download directly
-   curl -O https://raw.githubusercontent.com/deep-assistant/claude-profiles/main/claude-profiles.mjs
+   curl -O https://raw.githubusercontent.com/link-assistant/claude-profiles/main/claude-profiles.mjs
    chmod +x claude-profiles.mjs
    ```
 
@@ -438,15 +438,15 @@ gh gist delete <GIST_ID>
 1. **First Time Setup**:
    ```bash
    # 1. Install the tool (bun is faster)
-   bun install -g @deep-assistant/claude-profiles
-   # or: npm install -g @deep-assistant/claude-profiles
-   
+   bun install -g @link-assistant/claude-profiles
+   # or: npm install -g @link-assistant/claude-profiles
+
    # 2. Authenticate GitHub CLI
    gh auth login -s gist
-   
+
    # 3. Create your first profile
    claude-profiles --store default
-   
+
    # 4. List profiles to confirm
    claude-profiles --list
    ```
@@ -467,9 +467,9 @@ gh gist delete <GIST_ID>
    ```bash
    # On old machine
    claude-profiles --store migration
-   
+
    # On new machine (after installing and gh auth)
-   bun install -g @deep-assistant/claude-profiles
+   bun install -g @link-assistant/claude-profiles
    claude-profiles --restore migration
    ```
 
@@ -525,9 +525,9 @@ This project is released into the public domain under The Unlicense. See [LICENS
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues or pull requests at:
-https://github.com/deep-assistant/claude-profiles
+https://github.com/link-assistant/claude-profiles
 
 ## Support
 
 For issues, questions, or feature requests, please open an issue on GitHub:
-https://github.com/deep-assistant/claude-profiles/issues
+https://github.com/link-assistant/claude-profiles/issues
