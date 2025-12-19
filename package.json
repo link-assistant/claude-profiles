@@ -11,7 +11,11 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "node --check claude-profiles.mjs"
+    "test": "node --check claude-profiles.mjs",
+    "changeset": "changeset",
+    "changeset:version": "node scripts/changeset-version.mjs",
+    "changeset:publish": "changeset publish",
+    "changeset:status": "changeset status --since=origin/main"
   },
   "repository": {
     "type": "git",
@@ -44,5 +48,8 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7"
   }
 }
