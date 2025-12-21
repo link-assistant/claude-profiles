@@ -545,6 +545,73 @@ This project is released into the public domain under The Unlicense. See [LICENS
 Contributions are welcome! Please feel free to submit issues or pull requests at:
 https://github.com/link-assistant/claude-profiles
 
+### Development Workflow
+
+This project uses [Changesets](https://github.com/changesets/changesets) for version management and automated releases.
+
+#### Making Changes
+
+1. **Create a branch** for your changes:
+   ```bash
+   git checkout -b feature/my-feature
+   ```
+
+2. **Make your changes** and commit them
+
+3. **Create a changeset** to document your changes:
+   ```bash
+   npm run changeset
+   ```
+
+   This will prompt you to:
+   - Select the version bump type (patch/minor/major)
+   - Provide a description of your changes
+
+   A new file will be created in `.changeset/` directory.
+
+4. **Commit the changeset** along with your changes:
+   ```bash
+   git add .changeset/
+   git commit -m "Add changeset for my feature"
+   ```
+
+5. **Create a pull request** - the CI will validate that a changeset is present
+
+#### Release Process
+
+Releases are fully automated via GitHub Actions with OIDC trusted publishing to npm:
+
+1. **Merge PR to main** - Once your PR with a changeset is merged:
+   - The `release.yml` workflow automatically detects the changeset
+   - It bumps the version in `package.json`
+   - Updates `CHANGELOG.md` with your changes
+   - Commits the version bump back to main
+   - Publishes to npm using OIDC (no npm tokens needed!)
+   - Creates a GitHub release with release notes
+
+2. **Manual Releases** - Maintainers can also trigger releases manually via GitHub Actions:
+   ```
+   Actions → Checks and release → Run workflow
+   ```
+   Choose between:
+   - **Instant Release**: Immediately bump version and publish
+   - **Changeset PR**: Create a PR with changeset for review
+
+#### Version Bump Guidelines
+
+- **Patch** (0.0.x): Bug fixes, minor improvements, documentation
+- **Minor** (0.x.0): New features, non-breaking changes
+- **Major** (x.0.0): Breaking changes, major rewrites
+
+### CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration and deployment:
+
+- **PR Checks**: Validates changesets and runs syntax checks on Node.js 18, 20, 22
+- **Automated Releases**: Triggered on merge to main when changesets are present
+- **OIDC Publishing**: Secure, token-free publishing to npm registry
+- **No manual npm tokens**: Uses OpenID Connect for trusted publishing
+
 ## Support
 
 For issues, questions, or feature requests, please open an issue on GitHub:
