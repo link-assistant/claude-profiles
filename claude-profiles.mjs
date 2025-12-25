@@ -28,12 +28,15 @@ const { use } = eval(
 );
 
 // Load required packages dynamically with specific versions
-const [{ $ }, yargs, yargsHelpers, archiver] = await Promise.all([
+const [{ $ }, yargsModule, yargsHelpers, archiver] = await Promise.all([
   use('command-stream@0.7.0'),
   use('yargs@17.7.2'),
   use('yargs@17.7.2/helpers'),
   use('archiver@7.0.1')
 ]);
+
+// Handle both CommonJS and ES module exports for yargs in different environments
+const yargs = typeof yargsModule === 'function' ? yargsModule : yargsModule.default || yargsModule;
 
 const { hideBin } = yargsHelpers;
 
