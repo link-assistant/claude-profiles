@@ -23,17 +23,65 @@ import { createHash } from 'crypto';
 import { execSync } from 'child_process';
 
 // Dynamically load dependencies using use-m
-const { use } = eval(
-  await fetch('https://unpkg.com/use-m/use.js').then(r => r.text())
-);
+let use;
+try {
+  const useModule = eval(
+    await fetch('https://unpkg.com/use-m/use.js').then(r => r.text())
+  );
+  use = useModule.use;
+} catch (error) {
+  console.error('❌ Failed to load use-m module loader:');
+  console.error(`   ${error.message}`);
+  console.error('');
+  console.error('💡 This might be due to:');
+  console.error('   • Network connectivity issues');
+  console.error('   • Firewall blocking unpkg.com');
+  console.error('   • Corporate network restrictions');
+  console.error('');
+  console.error('🛠️  Try running with verbose mode: ./claude-profiles.mjs --verbose --list');
+  process.exit(1);
+}
 
 // Load required packages dynamically with specific versions
-const [{ $ }, yargs, yargsHelpers, archiver] = await Promise.all([
-  use('command-stream@0.7.0'),
-  use('yargs@17.7.2'),
-  use('yargs@17.7.2/helpers'),
-  use('archiver@7.0.1')
-]);
+let $, yargs, yargsHelpers, archiver;
+try {
+  [{ $ }, yargs, yargsHelpers, archiver] = await Promise.all([
+    use('command-stream@0.7.0'),
+    use('yargs@17.7.2'),
+    use('yargs@17.7.2/helpers'),
+    use('archiver@7.0.1')
+  ]);
+} catch (error) {
+  console.error('❌ Failed to load required dependencies:');
+  console.error(`   ${error.message}`);
+  console.error('');
+  
+  // Check for the specific package config error
+  if (error.message.includes('Invalid package config') && error.message.includes('package.json')) {
+    console.error('🔧 This error is typically caused by corrupted Node.js module files.');
+    console.error('   The issue is in your Node.js global installation, not this tool.');
+    console.error('');
+    console.error('💡 Possible solutions:');
+    console.error('   1. Clear npm cache: npm cache clean --force');
+    console.error('   2. Reinstall Node.js from https://nodejs.org/');
+    console.error('   3. Use a Node version manager like nvm:');
+    console.error('      • Install nvm: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash');
+    console.error('      • Install latest Node: nvm install node');
+    console.error('      • Use new version: nvm use node');
+    console.error('');
+    console.error('🐛 If this persists, please report the issue at:');
+    console.error('   https://github.com/deep-assistant/claude-profiles/issues');
+  } else {
+    console.error('💡 This might be due to:');
+    console.error('   • Network connectivity issues');
+    console.error('   • Node.js module resolution problems');
+    console.error('   • Corrupted Node.js installation');
+    console.error('');
+    console.error('🛠️  Try running with verbose mode: ./claude-profiles.mjs --verbose --list');
+  }
+  
+  process.exit(1);
+}
 
 const { hideBin } = yargsHelpers;
 
