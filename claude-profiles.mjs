@@ -384,6 +384,10 @@ async function setKeychainCredentials(credentials) {
        * 
        * This makes the JSON invalid and Claude Code cannot parse it.
        * 
+       * ISSUE REPORTED: https://github.com/link-foundation/command-stream/issues/39
+       * MONITORING: Run `node examples/check-command-stream-fix.mjs` to check for fix
+       * DOCUMENTATION: See COMMAND_STREAM_ISSUE.md for full details
+       * 
        * const result = await $`security add-generic-password -U -a $USER -s "Claude Code-credentials" -w "${escapedJson}"`.run({
        *   capture: true,
        *   mirror: false
