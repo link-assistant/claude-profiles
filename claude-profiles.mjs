@@ -1041,7 +1041,7 @@ async function watchProfile(profileName, options = {}) {
     
     // Watch configuration
     const minSaveInterval = 30000; // Minimum 30 seconds between saves
-    const debounceDelay = 2000; // Wait 2 seconds after last change
+    const debounceDelay = options.debounceDelay || 5000; // Wait after last change (configurable, default 5s)
     
     let pendingSaveTimeout = null;
     let changeDetected = false;
@@ -2331,7 +2331,7 @@ const argv = yargs(hideBin(process.argv))
   .option('watch', {
     alias: 'w',
     type: 'string',
-    description: 'Watch for changes and auto-save to profile (30s throttle)'
+    description: 'Watch for changes and auto-save to profile (5s debounce, 30s throttle)'
   })
   .option('verbose', {
     type: 'boolean',
@@ -2351,6 +2351,11 @@ const argv = yargs(hideBin(process.argv))
     description: 'Exclude projects folder from backup (reduces size)',
     default: false
   })
+  .option('debounce-delay', {
+    type: 'number',
+    description: 'Debounce delay in milliseconds for watch mode (default: 5000)',
+    default: 5000
+  })
   .help('help')
   .alias('help', 'h')
   .example('$0 --list', 'List all saved profiles')
@@ -2365,6 +2370,7 @@ const argv = yargs(hideBin(process.argv))
   .example('$0 --store work --watch work', 'Store current state then start watching')
   .example('$0 --watch work --skip-projects', 'Watch with projects folder excluded')
   .example('$0 --watch work --verbose --log', 'Watch with debugging and logging')
+  .example('$0 --watch work --debounce-delay 10000', 'Watch with 10 second debounce delay')
   .epilogue('Profile names must contain only lowercase letters, numbers, and hyphens')
   .check((argv) => {
     const mainOptions = [argv.list, argv.store, argv.restore, argv.delete, argv.verify, argv.watch].filter(Boolean);
@@ -2543,7 +2549,8 @@ async function getDetailedAuthStatus() {
     
     // Prepare options object
     const options = {
-      skipProjects: argv.skipProjects || false
+      skipProjects: argv.skipProjects || false,
+      debounceDelay: argv.debounceDelay
     };
     
     if (argv.list) {
