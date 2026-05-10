@@ -28,14 +28,16 @@ const { use } = eval(
 );
 
 // Load required packages dynamically with specific versions
-const [{ $ }, yargs, yargsHelpers, archiver] = await Promise.all([
+const [{ $ }, _yargs, yargsHelpers, archiver] = await Promise.all([
   use('command-stream@0.7.0'),
   use('yargs@17.7.2'),
   use('yargs@17.7.2/helpers'),
   use('archiver@7.0.1')
 ]);
 
-const { hideBin } = yargsHelpers;
+// use-m wraps CJS modules under .default in ESM context; unwrap defensively
+const yargs = (typeof _yargs === 'function') ? _yargs : (_yargs?.default ?? _yargs);
+const hideBin = yargsHelpers?.hideBin ?? yargsHelpers?.default?.hideBin ?? ((argv) => argv.slice(2));
 
 const PROFILE_NAME_REGEX = /^[a-z0-9-]+$/;
 
