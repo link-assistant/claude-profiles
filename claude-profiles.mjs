@@ -28,16 +28,19 @@ const { use } = eval(
 );
 
 // Load required packages dynamically with specific versions
-const [{ $ }, _yargs, yargsHelpers, archiver] = await Promise.all([
+const [_commandStream, _yargs, _yargsHelpers, _archiver] = await Promise.all([
   use('command-stream@0.7.0'),
   use('yargs@17.7.2'),
   use('yargs@17.7.2/helpers'),
   use('archiver@7.0.1')
 ]);
 
-// use-m wraps CJS modules under .default in ESM context; unwrap defensively
+// use-m wraps CJS modules under .default in ESM context on Node.js v23+; unwrap defensively
+// command-stream exports $ as a named export at the top level (not under .default)
+const { $ } = _commandStream;
 const yargs = (typeof _yargs === 'function') ? _yargs : (_yargs?.default ?? _yargs);
-const hideBin = yargsHelpers?.hideBin ?? yargsHelpers?.default?.hideBin ?? ((argv) => argv.slice(2));
+const hideBin = _yargsHelpers?.hideBin ?? _yargsHelpers?.default?.hideBin ?? ((argv) => argv.slice(2));
+const archiverFn = (typeof _archiver === 'function') ? _archiver : (_archiver?.default ?? _archiver);
 
 const PROFILE_NAME_REGEX = /^[a-z0-9-]+$/;
 
@@ -1295,7 +1298,7 @@ async function saveProfileSilent(profileName, options = {}) {
   
   try {
     const output = createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiverFn('zip', { zlib: { level: 9 } });
     
     const archivePromise = new Promise((resolve, reject) => {
       output.on('close', () => resolve());
@@ -1567,7 +1570,7 @@ async function saveProfile(profileName, options = {}) {
     
     // Create zip archive
     const output = createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiverFn('zip', { zlib: { level: 9 } });
     
     // Create a promise to track when archiving is complete
     const archivePromise = new Promise((resolve, reject) => {
